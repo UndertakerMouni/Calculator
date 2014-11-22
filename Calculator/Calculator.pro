@@ -14,15 +14,18 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         calculator.cpp \
-    calculatorstandard.cpp
+    calculatorstandard.cpp \
+    calculatorscientific.cpp
 
 HEADERS  += calculator.h \
-    calculatorstandard.h
+    calculatorstandard.h \
+    calculatorscientific.h
 
 FORMS    += calculator.ui \
-    calculatorstandard.ui
+    calculatorstandard.ui \
+    calculatorscientific.ui
 RC_FILE  += myIcon.rc
 
 OTHER_FILES += \
-    images/Calculator.ico \
-    myIcon.rc
+    myIcon.rc \
+    images/icon.ico

@@ -9,6 +9,7 @@ CalculatorStandard::CalculatorStandard(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setFixedSize(271,260);
     sumInMemory = 0.0;
     sumSoFar = 0.0;
     factorSoFar = 0.0;
