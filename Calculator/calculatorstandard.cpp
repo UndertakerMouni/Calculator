@@ -9,7 +9,7 @@ CalculatorStandard::CalculatorStandard(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setFixedSize(271,260);
+    setFixedSize(271,285);
     sumInMemory = 0.0;
     sumSoFar = 0.0;
     factorSoFar = 0.0;
@@ -276,7 +276,7 @@ bool CalculatorStandard::calculate(double rightOperand, const QString &pendingOp
         sumSoFar += rightOperand;
     } else if (pendingOperator == tr("-")) {
         sumSoFar -= rightOperand;
-    } else if (pendingOperator == tr("x")) {
+    } else if (pendingOperator == tr("*")) {
         factorSoFar *= rightOperand;
     } else if (pendingOperator == tr("/")) {
     if (rightOperand == 0.0)

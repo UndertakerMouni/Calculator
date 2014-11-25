@@ -35,6 +35,7 @@ private:
     Ui::CalculatorScientific *ui;
 
     double angleToArc(double angle);
+    double getPi();
     void abortOperation();
     bool calculate(double rightOperand, const QString &pendingOperator);
 

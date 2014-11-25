@@ -8,7 +8,7 @@ CalculatorScientific::CalculatorScientific(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::CalculatorScientific)
 {
-    setFixedSize(530,335);
+    setFixedSize(530,355);
     ui->setupUi(this);
     sumInMemory = 0.0;
     sumSoFar = 0.0;
@@ -40,6 +40,8 @@ CalculatorScientific::CalculatorScientific(QWidget *parent) :
     connect(ui->pushButton_E, SIGNAL(clicked()), this, SLOT(digitClicked()));
     connect(ui->pushButton_F, SIGNAL(clicked()), this, SLOT(digitClicked()));
 
+    connect(ui->pushButton_Pi, SIGNAL(clicked()), this, SLOT(digitClicked()));
+
     //
     connect(ui->pushButton_Point, SIGNAL(clicked()), this ,SLOT(pointClicked()));
     connect(ui->pushButton_PlusMinus, SIGNAL(clicked()), this, SLOT(changeSignClicked()));
@@ -54,7 +56,11 @@ CalculatorScientific::CalculatorScientific(QWidget *parent) :
     connect(ui->pushButton_Sub, SIGNAL(clicked()), this, SLOT(additiveOperatorClicked()));
     connect(ui->pushButton_Mul, SIGNAL(clicked()), this, SLOT(multiplicativeOperatorClicked()));
     connect(ui->pushButton_Div, SIGNAL(clicked()), this, SLOT(multiplicativeOperatorClicked()));
-
+    connect(ui->pushButton_Mod, SIGNAL(clicked()), this, SLOT(additiveOperatorClicked()));
+    connect(ui->pushButton_And, SIGNAL(clicked()), this, SLOT(additiveOperatorClicked()));
+    connect(ui->pushButton_Xor, SIGNAL(clicked()), this, SLOT(additiveOperatorClicked()));
+    connect(ui->pushButton_X_y, SIGNAL(clicked()), this, SLOT(additiveOperatorClicked()));
+ //   connect(ui->pushButton_, SIGNAL(clicked()), this, SLOT(additiveOperatorClicked()));
     //
     connect(ui->pushButton_Sqrt, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
     connect(ui->pushButton_X_2, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
@@ -69,8 +75,9 @@ CalculatorScientific::CalculatorScientific(QWidget *parent) :
     connect(ui->pushButton_Tanh, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
     connect(ui->pushButton_Fac, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
     connect(ui->pushButton_E_x, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
-    connect(ui->pushButton_Exp, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
+    connect(ui->pushButton_10_x, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
     connect(ui->pushButton_Int, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
+    connect(ui->pushButton_Not, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
 
     connect(ui->pushButton_Derivative, SIGNAL(clicked()), this, SLOT(unaryOperatorClicked()));
     connect(ui->pushButton_Equl, SIGNAL(clicked()), this, SLOT(equalClicked()));
@@ -93,11 +100,18 @@ void CalculatorScientific::digitClicked()
     QPushButton *clickedButton = qobject_cast<QPushButton *>(sender());
     int digitValue = 0;
     QString digitValue16;
+    double Pi;
 
-    if(ui->radioButton_16->isChecked())
-       digitValue16 = clickedButton->text();
-    else
-       digitValue = clickedButton->text().toInt();
+    if(clickedButton->text() == "Pi"){
+        Pi = getPi();
+        ui->lineEdit_display->clear();
+    }else{
+        if(ui->radioButton_16->isChecked())
+            digitValue16 = clickedButton->text();
+        else
+            digitValue = clickedButton->text().toInt();
+    }
+
     if (ui->lineEdit_display->text() == "0" && digitValue == 0.0)
         return;
 
@@ -105,10 +119,15 @@ void CalculatorScientific::digitClicked()
         ui->lineEdit_display->clear();
     waitingForOperand = false;
     }
-    if(ui->radioButton_16->isChecked())
-        ui->lineEdit_display->setText(ui->lineEdit_display->text() + digitValue16);
-    else
-        ui->lineEdit_display->setText(ui->lineEdit_display->text() + QString::number(digitValue));
+    if(clickedButton->text() == "Pi"){
+        ui->lineEdit_display->setText(QString::number(Pi));
+        waitingForOperand = true;
+    }else{
+        if(ui->radioButton_16->isChecked())
+            ui->lineEdit_display->setText(ui->lineEdit_display->text() + digitValue16);
+        else
+            ui->lineEdit_display->setText(ui->lineEdit_display->text() + QString::number(digitValue));
+    }
 }
 
 void CalculatorScientific::unaryOperatorClicked()
@@ -176,14 +195,16 @@ void CalculatorScientific::unaryOperatorClicked()
             return;
         }
         result = 1;
-        for(int i = 1; i < (int)operand; i++)
+        for(int i = 1; i <= (int)operand; i++)
             result *= i;
     } else if (clickedOperator == tr("e^x")) {
-        result = pow(10,operand);
-    } else if (clickedOperator == tr("Exp")) {
         result = exp(operand);
+    } else if (clickedOperator == tr("10^x")) {
+        result = pow(10,operand);
     } else if (clickedOperator == tr("Int")) {
         result = (int)(operand);
+    } else if (clickedOperator == tr("Not")) {
+        result = ~(int)(operand);
     }
     ui->lineEdit_display->setText(QString::number(result));
     waitingForOperand = true;
@@ -365,6 +386,11 @@ double CalculatorScientific::angleToArc(double angle)
     double Arc=angle/180*Pi;
     return Arc;
 }
+double CalculatorScientific::getPi()
+{
+    double Pi = 3.141592653589;
+    return Pi;
+}
 
 void CalculatorScientific::abortOperation()
 {
@@ -378,12 +404,20 @@ bool CalculatorScientific::calculate(double rightOperand, const QString &pending
         sumSoFar += rightOperand;
     } else if (pendingOperator == tr("-")) {
         sumSoFar -= rightOperand;
-    } else if (pendingOperator == tr("x")) {
+    } else if (pendingOperator == tr("*")) {
         factorSoFar *= rightOperand;
     } else if (pendingOperator == tr("/")) {
     if (rightOperand == 0.0)
         return false;
     factorSoFar /= rightOperand;
+    } else if (pendingOperator == tr("%")) {
+        sumSoFar = fmod(sumSoFar,rightOperand);
+    } else if (pendingOperator == tr("And")) {
+        sumSoFar = (int)sumSoFar & (int)rightOperand;
+    } else if (pendingOperator == tr("Xor")) {
+        sumSoFar = (int)sumSoFar ^ (int)rightOperand;
+    } else if (pendingOperator == tr("x^y")) {
+        sumSoFar = pow(sumSoFar,rightOperand);
     }
     return true;
 }
